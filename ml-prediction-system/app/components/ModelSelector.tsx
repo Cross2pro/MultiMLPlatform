@@ -27,11 +27,11 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
           <div 
             key={index}
             className={`p-4 border rounded-lg cursor-pointer transition-all duration-300 ${
-              selectedModel === (index === 0 ? 'randomForest' : 'neuralNetwork')
+              selectedModel === (index === 0 ? 'randomForest' : 'optimalNN')
                 ? 'bg-blue-50 border-blue-500 shadow-md'
                 : 'border-gray-200 hover:border-blue-300'
             }`}
-            onClick={() => onSelectModel(index === 0 ? 'randomForest' : 'neuralNetwork')}
+            onClick={() => onSelectModel(index === 0 ? 'randomForest' : 'optimalNN')}
           >
             <h3 className="font-semibold text-lg text-gray-800">{model.name}</h3>
             <div className="mt-2 text-sm text-gray-600">

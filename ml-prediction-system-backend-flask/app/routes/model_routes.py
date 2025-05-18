@@ -40,7 +40,21 @@ def predict():
             return jsonify({'error': '请提供模型类型和特征数据'}), 400
         
         # 验证特征数据
-        if not isinstance(features, dict):
+        if isinstance(features, list):
+            # 如果是数组，转换为字典格式 (第一版前端传来的是数组)
+            features_dict = {}
+            # 获取当前模型对象
+            model_obj = model_manager.models.get(model_type)
+            if not model_obj:
+                return jsonify({'error': f'模型类型不存在: {model_type}'}), 400
+            # 使用模型的特征名称列表来构建字典
+            for i, feature_name in enumerate(model_obj.feature_names):
+                if i < len(features):
+                    features_dict[feature_name] = features[i]
+                else:
+                    features_dict[feature_name] = 0
+            features = features_dict
+        elif not isinstance(features, dict):
             return jsonify({'error': '特征数据格式不正确'}), 400
         
         result = model_manager.predict(model_type, features)

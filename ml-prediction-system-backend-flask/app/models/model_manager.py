@@ -17,7 +17,7 @@ class ModelManager:
                 'trained': False,
                 'accuracy': 0.934,
                 'metrics': None,
-                'predictTime': 0
+                'predictTime': 1
             },
             'optimalNN': {
                 'name': '最优神经网络',
@@ -25,7 +25,7 @@ class ModelManager:
                 'trained': False,
                 'accuracy': 0.893,
                 'metrics': None,
-                'predictTime': 0
+                'predictTime': 2
             }
         }
         

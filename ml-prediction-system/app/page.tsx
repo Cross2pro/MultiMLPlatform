@@ -14,10 +14,11 @@ type Model = {
 };
 
 type PredictionResult = {
-  prediction: number;
-  modelUsed: string;
+  modelName: string;
   confidence: number;
   processTime: string;
+  individual_predictions: number[];
+  shear_capacity: number;
 };
 
 export default function Home() {
@@ -80,6 +81,17 @@ export default function Home() {
     }
   };
 
+  // 用于测试UI展示的示例数据
+  const handleDemoResult = () => {
+    setResult({
+      modelName: "随机森林",
+      confidence: 0.8008928720291373,
+      processTime: "0ms",
+      individual_predictions: [383.7, 595.7, 620.1],
+      shear_capacity: 533.1666666666666
+    });
+  };
+
   return (
     <main className="min-h-screen p-4 md:p-8 bg-gray-50">
       <div className="max-w-5xl mx-auto">
@@ -112,6 +124,18 @@ export default function Home() {
             />
             
             {result && <PredictionResult result={result} />}
+            
+            {/* 开发环境使用，方便测试UI */}
+            {process.env.NODE_ENV === 'development' && !result && (
+              <div className="mt-4">
+                <button
+                  onClick={handleDemoResult}
+                  className="text-sm text-gray-500 underline"
+                >
+                  显示示例结果（仅开发环境）
+                </button>
+              </div>
+            )}
           </>
         ) : !error ? (
           <div className="text-center py-8">
