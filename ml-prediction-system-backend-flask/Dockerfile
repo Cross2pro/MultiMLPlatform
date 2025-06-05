@@ -8,11 +8,11 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# 使用阿里云镜像源加速apt安装（修正为bookworm版本）
-RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources 2>/dev/null || \
-    (echo "deb https://mirrors.aliyun.com/debian/ bookworm main" > /etc/apt/sources.list && \
-     echo "deb https://mirrors.aliyun.com/debian/ bookworm-updates main" >> /etc/apt/sources.list && \
-     echo "deb https://mirrors.aliyun.com/debian-security/ bookworm-security main" >> /etc/apt/sources.list)
+# 强制替换镜像源（多种方案确保成功）
+RUN sed -i 's|http://deb.debian.org|https://mirrors.163.com|g' /etc/apt/sources.list* || true && \
+    sed -i 's|http://security.debian.org|https://mirrors.163.com|g' /etc/apt/sources.list* || true && \
+    echo "deb https://mirrors.163.com/debian/ bookworm main" > /etc/apt/sources.list && \
+    echo "deb https://mirrors.163.com/debian/ bookworm-updates main" >> /etc/apt/sources.list
 
 # 安装系统依赖
 RUN apt-get update && apt-get install -y \
@@ -25,8 +25,8 @@ RUN apt-get update && apt-get install -y \
 # 复制requirements.txt
 COPY requirements.txt .
 
-# 使用清华大学镜像源加速pip安装
-RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
+# 使用豆瓣镜像源安装Python包（最稳定）
+RUN pip install --no-cache-dir -i https://pypi.douban.com/simple/ -r requirements.txt
 
 # 复制应用代码
 COPY . .
