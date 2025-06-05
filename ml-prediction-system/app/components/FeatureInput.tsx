@@ -28,35 +28,35 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
   // 字段配置
   const fieldGroups: FieldGroup[] = [
     {
-      title: "配置类参数",
+      title: "Configuration Parameters",
       fields: [
         {
           id: "joint_type",
-          label: "接缝类型 (Jt)",
+          label: "Joint Type (Jt)",
           description: "1=干接缝，2=环氧树脂接缝，3=湿接缝，4=整体浇筑接缝",
           type: "select" as const,
           options: [
-            { value: 1, label: "干接缝" },
-            { value: 2, label: "环氧树脂接缝" },
-            { value: 3, label: "湿接缝" },
-            { value: 4, label: "整体浇筑接缝" }
+            { value: 1, label: "Dry Joint" },
+            { value: 2, label: "Epoxy Joint" },
+            { value: 3, label: "Wet Joint" },
+            { value: 4, label: "Monolithic Joint" }
           ],
           defaultValue: 1
         },
         {
           id: "specimen_type",
-          label: "试件类型 (St)",
+          label: "Specimen Type (St)",
           description: "1=单接缝(SJ)，2=双接缝(DJ)",
           type: "select" as const,
           options: [
-            { value: 1, label: "单接缝(SJ)" },
-            { value: 2, label: "双接缝(DJ)" }
+            { value: 1, label: "Single Joint (SJ)" },
+            { value: 2, label: "Double Joint (DJ)" }
           ],
           defaultValue: 1
         },
         {
           id: "key_number",
-          label: "键槽数量 (Nk)",
+          label: "Number of Keys (Nk)",
           description: "接缝中键槽的数量",
           type: "number" as const,
           defaultValue: 1,
@@ -66,11 +66,11 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
       ]
     },
     {
-      title: "几何尺寸参数",
+      title: "Geometric Parameters",
       fields: [
         {
           id: "key_width",
-          label: "单个键槽宽度 (Bk)",
+          label: "Key Width (Bk)",
           description: "单个键槽的宽度",
           type: "number" as const,
           defaultValue: 35,
@@ -79,7 +79,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "key_root_height",
-          label: "单个键槽根部高度 (Hk)",
+          label: "Key Root Height (Hk)",
           description: "单个键槽根部的高度",
           type: "number" as const,
           defaultValue: 50,
@@ -88,7 +88,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "key_depth",
-          label: "单个键槽深度 (Dk)",
+          label: "Key Depth (Dk)",
           description: "单个键槽的深度",
           type: "number" as const,
           defaultValue: 25,
@@ -97,7 +97,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "key_inclination",
-          label: "单个键槽倾角 (theta_k)",
+          label: "Key Inclination (theta_k)",
           description: "单个键槽的倾斜角度",
           type: "number" as const,
           defaultValue: 34.5,
@@ -105,7 +105,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "key_spacing",
-          label: "相邻键槽间距 (Sk)",
+          label: "Key Spacing (Sk)",
           description: "相邻键槽之间的距离",
           type: "number" as const,
           defaultValue: 50,
@@ -114,7 +114,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "key_front_height",
-          label: "单个键槽前部高度 (hk)",
+          label: "Key Front Height (hk)",
           description: "单个键槽前部的高度",
           type: "number" as const,
           defaultValue: 25,
@@ -123,7 +123,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "key_depth_height_ratio",
-          label: "键槽深度与高度比 (Dk/Hk)",
+          label: "Key Depth-Height Ratio (Dk/Hk)",
           description: "键槽深度与高度的比值",
           type: "number" as const,
           defaultValue: 0.5,
@@ -132,7 +132,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "joint_width",
-          label: "接缝宽度 (Bj)",
+          label: "Joint Width (Bj)",
           description: "接缝的总宽度",
           type: "number" as const,
           defaultValue: 200,
@@ -141,7 +141,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "joint_height",
-          label: "接缝高度 (Hj)",
+          label: "Joint Height (Hj)",
           description: "接缝的总高度",
           type: "number" as const,
           defaultValue: 200,
@@ -150,7 +150,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "key_area",
-          label: "接缝中键槽区域面积 (Ak)",
+          label: "Key Area (Ak)",
           description: "接缝中键槽区域的总面积",
           type: "number" as const,
           defaultValue: 17500,
@@ -159,7 +159,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "joint_area",
-          label: "接缝总面积 (Aj)",
+          label: "Joint Area (Aj)",
           description: "接缝的总面积",
           type: "number" as const,
           defaultValue: 40000,
@@ -168,7 +168,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "flat_region_area",
-          label: "接缝中平坦区域面积 (Asm)",
+          label: "Flat Region Area (Asm)",
           description: "接缝中平坦区域的面积",
           type: "number" as const,
           defaultValue: 38250,
@@ -177,7 +177,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "key_joint_area_ratio",
-          label: "键槽面积与接缝面积比率 (Ak/Aj)",
+          label: "Key-Joint Area Ratio (Ak/Aj)",
           description: "键槽面积与接缝面积的比值",
           type: "number" as const,
           defaultValue: 0.04,
@@ -187,11 +187,11 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
       ]
     },
     {
-      title: "UHPC材料性能参数",
+      title: "UHPC Material Properties",
       fields: [
         {
           id: "compressive_strength",
-          label: "抗压强度 (fc)",
+          label: "Compressive Strength (fc)",
           description: "UHPC材料的抗压强度",
           type: "number" as const,
           defaultValue: 193,
@@ -200,20 +200,20 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "fiber_type",
-          label: "纤维类型 (Ft)",
+          label: "Fiber Type (Ft)",
           description: "0=无纤维，1=直纤维，2=混合纤维(直纤维和端钩纤维)，3=端钩纤维",
           type: "select" as const,
           options: [
-            { value: 0, label: "无纤维" },
-            { value: 1, label: "直纤维" },
-            { value: 2, label: "混合纤维(直纤维和端钩纤维)" },
-            { value: 3, label: "端钩纤维" }
+            { value: 0, label: "No Fiber" },
+            { value: 1, label: "Straight Fiber" },
+            { value: 2, label: "Mixed Fiber (Straight and Hooked)" },
+            { value: 3, label: "Hooked Fiber" }
           ],
           defaultValue: 1
         },
         {
           id: "fiber_volume_fraction",
-          label: "纤维体积分数 (pf)",
+          label: "Fiber Volume Fraction (pf)",
           description: "纤维在UHPC中的体积分数",
           type: "number" as const,
           defaultValue: 0.01,
@@ -222,7 +222,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "fiber_length",
-          label: "纤维长度 (lf)",
+          label: "Fiber Length (lf)",
           description: "纤维的长度",
           type: "number" as const,
           defaultValue: 13,
@@ -231,7 +231,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "fiber_diameter",
-          label: "纤维直径 (df)",
+          label: "Fiber Diameter (df)",
           description: "纤维的直径",
           type: "number" as const,
           defaultValue: 0.2,
@@ -240,7 +240,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "fiber_reinforcing_index",
-          label: "纤维增强指数 (lambda_f)",
+          label: "Fiber Reinforcing Index (lambda_f)",
           description: "纤维增强指数，计算公式为 pf×lf/df",
           type: "number" as const,
           defaultValue: 65,
@@ -250,11 +250,11 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
       ]
     },
     {
-      title: "约束应力参数",
+      title: "Confinement Stress Parameters",
       fields: [
         {
           id: "confining_stress",
-          label: "约束应力 (sigma_n)",
+          label: "Confinement Stress (sigma_n)",
           description: "约束应力值",
           type: "number" as const,
           defaultValue: 1,
@@ -263,7 +263,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
         },
         {
           id: "confining_ratio",
-          label: "约束比 (sigma_n/fc)",
+          label: "Confinement Ratio (sigma_n/fc)",
           description: "约束应力与抗压强度之比",
           type: "number" as const,
           defaultValue: 0.005,
@@ -273,11 +273,11 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
       ]
     },
     {
-      title: "抗剪强度",
+      title: "Shear Strength",
       fields: [
         {
           id: "shear_strength",
-          label: "抗剪强度 (tau_max)",
+          label: "Shear Strength (tau_max)",
           description: "接缝的最大抗剪强度",
           type: "number" as const,
           defaultValue: 1421,
@@ -298,11 +298,11 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
 
   const [values, setValues] = useState<Record<string, number>>(initialValues);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
-    "配置类参数": true,
-    "几何尺寸参数": true,
-    "UHPC材料性能参数": true,
-    "约束应力参数": true,
-    "抗剪强度": true
+    "Configuration Parameters": true,
+    "Geometric Parameters": true,
+    "UHPC Material Properties": true,
+    "Confinement Stress Parameters": true,
+    "Shear Strength": true
   });
 
   const handleChange = (id: string, value: number) => {
@@ -328,7 +328,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
 
   return (
     <div className="w-full p-4 bg-white rounded-lg shadow-md mt-4">
-      <h2 className="text-xl font-bold mb-4 text-gray-800">输入UHPC接缝特征数据</h2>
+      <h2 className="text-xl font-bold mb-4 text-gray-800">Input UHPC Joint Feature Data</h2>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         {fieldGroups.map(group => (
@@ -389,7 +389,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
               : 'bg-blue-600 hover:bg-blue-700 text-white'
           }`}
         >
-          {isLoading ? '预测中...' : '开始预测'}
+          {isLoading ? 'Predicting...' : 'Start Prediction'}
         </button>
       </form>
     </div>

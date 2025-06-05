@@ -23,7 +23,7 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ result }) => {
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
         </svg>
-        预测结果
+        Prediction Result
       </h2>
       
       <div className="grid md:grid-cols-2 gap-6">
@@ -34,17 +34,17 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ result }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-800">模型信息</h3>
+            <h3 className="text-lg font-semibold text-gray-800">Model Information</h3>
           </div>
           
           <div className="space-y-3">
             <div className="flex items-center justify-between py-2 border-b border-blue-100">
-              <span className="text-gray-700">使用模型:</span>
+              <span className="text-gray-700">Model Used:</span>
               <span className="font-semibold text-blue-800">{modelName}</span>
             </div>
             
             <div className="flex items-center justify-between py-2 border-b border-blue-100">
-              <span className="text-gray-700">置信度:</span>
+              <span className="text-gray-700">Confidence:</span>
               <div className="flex items-center">
                 <div className="w-32 bg-gray-200 rounded-full h-2.5 mr-2">
                   <div 
@@ -57,7 +57,7 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ result }) => {
             </div>
             
             <div className="flex items-center justify-between py-2">
-              <span className="text-gray-700">处理时间:</span>
+              <span className="text-gray-700">Processing Time:</span>
               <span className="font-semibold text-gray-700">{processTime}</span>
             </div>
           </div>
@@ -70,12 +70,12 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ result }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-800">预测结果</h3>
+            <h3 className="text-lg font-semibold text-gray-800">Prediction Result</h3>
           </div>
           
           <div className="space-y-3">
             <div className="flex items-center justify-between py-2 border-b border-green-100">
-              <span className="text-gray-700">抗剪承载力:</span>
+              <span className="text-gray-700">Shear Capacity:</span>
               <span className="font-bold text-green-700">{shear_capacity.toFixed(2)} kN</span>
             </div>
           </div>
@@ -89,7 +89,7 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ result }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-800">个别预测明细</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Individual Prediction Details</h3>
         </div>
         
         <div className="overflow-x-auto">
@@ -97,13 +97,13 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ result }) => {
             <thead className="bg-gray-100">
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  预测序号
+                  Prediction No.
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  预测值 (kN)
+                  Predicted Value (kN)
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  与平均值偏差
+                  Deviation from Average
                 </th>
               </tr>
             </thead>
@@ -115,7 +115,7 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ result }) => {
                 return (
                   <tr key={index}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      预测 {index + 1}
+                      Prediction {index + 1}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {prediction.toFixed(2)}
@@ -144,11 +144,11 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ result }) => {
           </div>
           <div className="ml-3">
             <h3 className="text-sm font-medium text-yellow-800">
-              模型说明
+              Model Description
             </h3>
             <div className="mt-2 text-sm text-yellow-700">
               <p>
-                该预测结果仅供参考，实际抗剪承载力可能受多种因素影响。最终结果是基于多个预测取平均值得出。
+                This prediction result is for reference only. The actual shear capacity may be affected by various factors. The final result is derived from the average of multiple predictions.
               </p>
             </div>
           </div>
