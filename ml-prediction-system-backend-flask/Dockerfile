@@ -12,7 +12,7 @@ ENV PYTHONUNBUFFERED=1
 COPY requirements.txt .
 
 # 直接使用预编译的wheel包安装Python依赖（避免编译）
-RUN pip install --no-cache-dir  -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -r requirements.txt
+RUN pip install --no-cache-dir  -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -r requirements.txt --default-timeout=1000
 
 # 复制应用代码
 COPY . .
