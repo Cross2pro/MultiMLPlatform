@@ -1,5 +1,5 @@
 # 使用官方Python镜像
-FROM python:3.9-slim
+FROM python:3.9
 
 # 设置工作目录
 WORKDIR /app
@@ -12,7 +12,7 @@ ENV PYTHONUNBUFFERED=1
 COPY requirements.txt .
 
 # 直接使用预编译的wheel包安装Python依赖（避免编译）
-RUN pip install -r requirements.txt --default-timeout=1000
+RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/  -r requirements.txt --default-timeout=1000
 
 # 复制应用代码
 COPY . .
