@@ -5,7 +5,8 @@ import ModelSelector from './components/ModelSelector';
 import FeatureInput from './components/FeatureInput';
 import PredictionResult from './components/PredictionResult';
 
-const API_URL = 'http://localhost:5000';
+// 使用相对路径，这样前后端集成后就会使用同一个域名和端口
+const API_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:5000' : '';
 
 type Model = {
   name: string;
