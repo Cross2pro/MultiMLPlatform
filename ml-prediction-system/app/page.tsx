@@ -101,7 +101,7 @@ export default function Home() {
             多模型机器学习预测系统
           </h1>
           <p className="text-gray-600">
-            选择模型、输入特征数据，获取智能预测结果
+          © {new Date().getFullYear()} 长沙理工大学 - 李嘉俊
           </p>
         </header>
 
@@ -148,6 +148,7 @@ export default function Home() {
       
       <footer className="text-center mt-12 py-4 text-sm text-gray-500 border-t">
         <p>© {new Date().getFullYear()} 长沙理工大学 - 李嘉俊</p>
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">湘ICP备2021017124号-1</a>
       </footer>
     </main>
   );

@@ -182,28 +182,56 @@ class OptimalNNModel:
                 else:
                     result = float(output[0])
                 
-                # 检查结果合理性
-                if result < 0 or result > 2000:
-                    print(f"警告: 模型预测值({result})超出合理范围，使用基于特征的估算")
-                    # 使用基于特征和随机森林模型相似的估算
-                    result = self._estimate_capacity(features)
-                else:
-                    # 如果结果合理，进行后处理调整
-                    result = self._postprocess_prediction(result, features)
+                # 检查结果合理性，但放宽范围限制
+                if result < 0:
+                    print(f"警告: 模型预测值为负数({result})，设置为0")
+                    result = 0
+                elif result > 5000:  # 放宽上限到5000
+                    print(f"警告: 模型预测值过大({result})，可能需要检查输入特征")
                 
         except Exception as e:
             print(f"模型预测异常: {str(e)}，使用基于特征的估算")
-            # 使用基于特征和随机森林模型相似的估算
+            # 只有在模型完全失败时才使用估算
             result = self._estimate_capacity(features)
         
-        # 模拟多树决策的个体预测
-        num_predictions = 5
-        base_value = result
+        # 不再生成模拟的individual_predictions，而是使用实际的不确定性估计
+        # 通过对输入特征添加小幅随机噪声来估计预测不确定性
         individual_predictions = []
-        for _ in range(num_predictions):
-            # 生成与基本预测相似但略有变化的值
-            variation = random.uniform(0.85, 1.15)
-            individual_predictions.append(base_value * variation)
+        base_prediction = result
+        
+        # 进行多次预测来评估模型的不确定性（通过dropout）
+        if self.model:
+            try:
+                # 检查模型是否包含BatchNorm层，如果有则跳过dropout不确定性估计
+                has_batchnorm = any(isinstance(module, nn.BatchNorm1d) for module in self.model.modules())
+                
+                if has_batchnorm:
+                    # 对于包含BatchNorm的模型，使用简单的重复预测
+                    individual_predictions = [result] * 5
+                    print("模型包含BatchNorm层，使用确定性预测")
+                else:
+                    # 启用dropout来获取预测不确定性
+                    self.model.train()  # 临时启用训练模式以激活dropout
+                    
+                    with torch.no_grad():
+                        for _ in range(10):  # 进行10次预测
+                            output = self.model(feature_tensor)
+                            pred_value = float(output.item()) if output.numel() == 1 else float(output[0])
+                            individual_predictions.append(pred_value)
+                    
+                    # 恢复评估模式
+                    self.model.eval()
+                    
+                    # 使用多次预测的平均值作为最终结果
+                    result = sum(individual_predictions) / len(individual_predictions)
+                
+            except Exception as e:
+                print(f"不确定性估计失败: {str(e)}")
+                # 如果不确定性估计失败，使用基础预测
+                individual_predictions = [base_prediction] * 5
+        else:
+            # 如果没有模型，返回基础预测
+            individual_predictions = [base_prediction] * 5
         
         # 基于预测分布计算置信度
         confidence = self.calculate_confidence(individual_predictions)
@@ -213,39 +241,6 @@ class OptimalNNModel:
             'individual_predictions': individual_predictions,
             'confidence': confidence
         }
-    
-    def _postprocess_prediction(self, prediction, features):
-        """
-        对模型预测结果进行后处理，使其更接近随机森林模型
-        :param prediction: 原始预测值
-        :param features: 输入特征
-        :return: 调整后的预测值
-        """
-        # 参考估算值
-        reference = self._estimate_capacity(features)
-        
-        # 权重因子（决定偏向模型预测还是参考值）
-        model_weight = 0.3  # 更偏向于参考值
-        
-        # 如果预测值远低于参考值，则更多地采用参考值
-        if prediction < reference * 0.5:
-            model_weight = 0.1
-        
-        # 计算加权平均
-        adjusted = prediction * model_weight + reference * (1 - model_weight)
-        
-        # 添加一些随机变化，但保持原有趋势
-        random_factor = 1.0 + (random.random() - 0.5) * 0.1  # ±5%的随机变化
-        adjusted *= random_factor
-        
-        # 根据一些关键特征进行微调
-        if features['key_number'] >= 3:
-            adjusted *= 1.1  # 多键槽情况下略微增加
-        
-        if features['confining_stress'] > 2.0:
-            adjusted *= 1.05  # 高约束应力情况下略微增加
-        
-        return adjusted
     
     def calculate_confidence(self, predictions):
         """
