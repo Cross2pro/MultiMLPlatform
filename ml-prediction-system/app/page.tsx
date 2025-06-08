@@ -145,7 +145,7 @@ export default function Home() {
                         </svg>
                         <h3 className="text-lg font-medium text-gray-800 mb-2">等待预测结果</h3>
                         <p className="text-sm text-gray-600">
-                          请在左侧输入参数并点击"开始预测"按钮
+                          请在左侧输入参数并点击&ldquo;开始预测&rdquo;按钮
                         </p>
                         {process.env.NODE_ENV === 'development' && (
                           <button
