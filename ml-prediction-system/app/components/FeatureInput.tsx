@@ -22,13 +22,15 @@ type FieldConfig = {
 type FieldGroup = {
   title: string;
   fields: FieldConfig[];
+  color: string; // 添加颜色主题
 };
 
 const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
-  // 字段配置
+  // 字段配置 - 添加颜色主题
   const fieldGroups: FieldGroup[] = [
     {
       title: "Configuration Parameters",
+      color: "blue",
       fields: [
         {
           id: "joint_type",
@@ -67,6 +69,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
     },
     {
       title: "Geometric Parameters",
+      color: "green",
       fields: [
         {
           id: "key_width",
@@ -188,6 +191,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
     },
     {
       title: "UHPC Material Properties",
+      color: "purple",
       fields: [
         {
           id: "compressive_strength",
@@ -251,6 +255,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
     },
     {
       title: "Confinement Stress Parameters",
+      color: "orange",
       fields: [
         {
           id: "confining_stress",
@@ -274,6 +279,7 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
     },
     {
       title: "Shear Strength",
+      color: "red",
       fields: [
         {
           id: "shear_strength",
@@ -326,71 +332,113 @@ const FeatureInput: React.FC<FeatureInputProps> = ({ onSubmit, isLoading }) => {
     onSubmit(featuresArray);
   };
 
+  // 颜色主题映射
+  const colorMap = {
+    blue: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800', button: 'bg-blue-100 hover:bg-blue-200' },
+    green: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-800', button: 'bg-green-100 hover:bg-green-200' },
+    purple: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-800', button: 'bg-purple-100 hover:bg-purple-200' },
+    orange: { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-800', button: 'bg-orange-100 hover:bg-orange-200' },
+    red: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-800', button: 'bg-red-100 hover:bg-red-200' }
+  };
+
   return (
-    <div className="w-full p-4 bg-white rounded-lg shadow-md mt-4">
-      <h2 className="text-xl font-bold mb-4 text-gray-800">Input UHPC Joint Feature Data</h2>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {fieldGroups.map(group => (
-          <div key={group.title} className="border rounded-lg overflow-hidden">
-            <button
-              type="button"
-              className="w-full px-4 py-3 bg-gray-100 text-left font-semibold text-gray-800 hover:bg-gray-200 flex justify-between items-center"
-              onClick={() => toggleGroup(group.title)}
-            >
-              <span>{group.title}</span>
-              <span>{expanded[group.title] ? '▼' : '►'}</span>
-            </button>
-            
-            {expanded[group.title] && (
-              <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                {group.fields.map(field => (
-                  <div key={field.id} className="space-y-1">
-                    <label className="block text-gray-800 font-medium">
-                      {field.label}
-                    </label>
-                    <div className="text-xs text-gray-600 mb-1">{field.description}</div>
-                    
-                    {field.type === 'select' ? (
-                      <select
-                        value={values[field.id]}
-                        onChange={(e) => handleChange(field.id, Number(e.target.value))}
-                        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
-                      >
-                        {field.options && field.options.map((option: {value: number, label: string}) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input
-                        type="number"
-                        step={field.step || 1}
-                        min={field.min !== undefined ? field.min : undefined}
-                        value={values[field.id]}
-                        onChange={(e) => handleChange(field.id, Number(e.target.value))}
-                        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+    <div className="w-full p-4 bg-white rounded-lg shadow-md">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-gray-800">UHPC接缝特征参数输入</h2>
+        <div className="flex items-center space-x-2">
+          <button
+            type="button"
+            onClick={() => setValues(initialValues)}
+            className="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+          >
+            重置默认值
+          </button>
+          <div className="text-sm text-gray-600">
+            共 {fieldGroups.reduce((sum, group) => sum + group.fields.length, 0)} 个参数
           </div>
-        ))}
+        </div>
+      </div>
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* 使用网格布局展示参数组 */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          {fieldGroups.map(group => {
+            const colors = colorMap[group.color as keyof typeof colorMap];
+            return (
+              <div key={group.title} className={`border rounded-lg overflow-hidden ${colors.border} ${colors.bg}`}>
+                <button
+                  type="button"
+                  className={`w-full px-4 py-2 text-left font-semibold ${colors.text} ${colors.button} flex justify-between items-center`}
+                  onClick={() => toggleGroup(group.title)}
+                >
+                  <span className="text-sm font-medium">{group.title}</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs bg-white px-2 py-1 rounded-full">{group.fields.length}</span>
+                    <span className="text-sm">{expanded[group.title] ? '▼' : '►'}</span>
+                  </div>
+                </button>
+                
+                {expanded[group.title] && (
+                  <div className="p-3 bg-white border-t grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    {group.fields.map(field => (
+                      <div key={field.id} className="space-y-1">
+                        <label className="block text-gray-800 font-medium text-sm">
+                          {field.label}
+                        </label>
+                        <div className="text-xs text-gray-600 mb-1 leading-tight">{field.description}</div>
+                        
+                        {field.type === 'select' ? (
+                          <select
+                            value={values[field.id]}
+                            onChange={(e) => handleChange(field.id, Number(e.target.value))}
+                            className="w-full p-2 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
+                          >
+                            {field.options && field.options.map((option: {value: number, label: string}) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type="number"
+                            step={field.step || 1}
+                            min={field.min !== undefined ? field.min : undefined}
+                            value={values[field.id]}
+                            onChange={(e) => handleChange(field.id, Number(e.target.value))}
+                            className="w-full p-2 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
         
-        <button
-          type="submit"
-          disabled={isLoading}
-          className={`w-full py-3 px-4 rounded font-semibold ${
-            isLoading
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
-          }`}
-        >
-          {isLoading ? 'Predicting...' : 'Start Prediction'}
-        </button>
+        {/* 提交按钮 */}
+        <div className="pt-4 border-t">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 ${
+              isLoading
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg'
+            }`}
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                正在预测...
+              </div>
+            ) : (
+              '开始预测'
+            )}
+          </button>
+        </div>
       </form>
     </div>
   );

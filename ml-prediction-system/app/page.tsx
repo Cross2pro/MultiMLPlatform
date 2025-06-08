@@ -94,9 +94,9 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen p-4 md:p-8 bg-gray-50">
-      <div className="max-w-5xl mx-auto">
-        <header className="text-center mb-8">
+    <main className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto p-4 md:p-6">
+        <header className="text-center mb-6">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
             多模型机器学习预测系统
           </h1>
@@ -113,35 +113,60 @@ export default function Home() {
         
         {models.length > 0 ? (
           <>
-            <ModelSelector 
-              models={models} 
-              selectedModel={selectedModel}
-              onSelectModel={handleSelectModel}
-            />
+            {/* 模型选择器保持在顶部 */}
+            <div className="mb-6">
+              <ModelSelector 
+                models={models} 
+                selectedModel={selectedModel}
+                onSelectModel={handleSelectModel}
+              />
+            </div>
             
-            <FeatureInput 
-              onSubmit={handleSubmitFeatures}
-              isLoading={loading}
-            />
-            
-            {result && <PredictionResult result={result} />}
-            
-            {/* 开发环境使用，方便测试UI */}
-            {process.env.NODE_ENV === 'development' && !result && (
-              <div className="mt-4">
-                <button
-                  onClick={handleDemoResult}
-                  className="text-sm text-gray-500 underline"
-                >
-                  显示示例结果（仅开发环境）
-                </button>
+            {/* 主要内容区域：左侧参数输入，右侧预测结果 */}
+            <div className="grid lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {/* 左侧参数输入区域 */}
+              <div className="lg:col-span-2 xl:col-span-3">
+                <FeatureInput 
+                  onSubmit={handleSubmitFeatures}
+                  isLoading={loading}
+                />
               </div>
-            )}
+              
+              {/* 右侧预测结果区域 */}
+              <div className="lg:col-span-1 xl:col-span-1">
+                <div className="sticky top-6">
+                  {result ? (
+                    <PredictionResult result={result} />
+                  ) : (
+                    <div className="bg-white p-6 rounded-lg shadow-md border-2 border-dashed border-gray-300">
+                      <div className="text-center text-gray-500">
+                        <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        <h3 className="text-lg font-medium text-gray-800 mb-2">等待预测结果</h3>
+                        <p className="text-sm text-gray-600">
+                          请在左侧输入参数并点击"开始预测"按钮
+                        </p>
+                        {process.env.NODE_ENV === 'development' && (
+                          <button
+                            onClick={handleDemoResult}
+                            className="mt-4 text-sm text-blue-600 underline hover:text-blue-800"
+                          >
+                            显示示例结果（仅开发环境）
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </>
         ) : !error ? (
-          <div className="text-center py-8">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-            <p className="mt-4 text-gray-600">加载模型中...</p>
+          <div className="text-center py-16">
+            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent mb-4"></div>
+            <h3 className="text-lg font-medium text-gray-800 mb-2">正在加载模型</h3>
+            <p className="text-gray-600">请稍等，正在连接服务器...</p>
           </div>
         ) : null}
       </div>
