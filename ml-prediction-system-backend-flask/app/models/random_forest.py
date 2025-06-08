@@ -2,6 +2,7 @@ import os
 import pickle
 import json
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 
 class RandomForestModel:
@@ -9,172 +10,185 @@ class RandomForestModel:
         self.name = '随机森林'
         self.trained = False
         self.model = None
-        self.feature_names = [
-            'joint_type', 'specimen_type', 'key_number', 
-            'key_width', 'key_root_height', 'key_depth', 
-            'key_inclination', 'key_spacing', 'key_front_height', 
-            'key_depth_height_ratio', 'joint_width', 'joint_height', 
-            'key_area', 'joint_area', 'flat_region_area', 
-            'key_joint_area_ratio', 'compressive_strength', 'fiber_type', 
-            'fiber_volume_fraction', 'fiber_length', 'fiber_diameter', 
-            'fiber_reinforcing_index', 'confining_stress', 'confining_ratio'
-        ]
+        self.pipeline = None
+        self.feature_names = None
         self.scaler = None
-        # 自定义树模型
-        self.custom_trees = None
-        self.n_estimators = 0
+        self.categorical_info = None
 
-    def load_model(self, model_path=None):
+    def load_model(self, model_path=None, pipeline_path=None):
         """
-        加载预训练模型
+        加载预训练模型和预处理管道
         :param model_path: 模型路径，不提供则使用默认路径
+        :param pipeline_path: 预处理管道路径，不提供则使用默认路径
         :return: 是否加载成功
         """
         try:
-            # 首先尝试加载JSON格式的简化模型
-            default_json_path = os.path.join(os.path.dirname(__file__), '../data/rf_model_simplified.json')
+            # 确定模型文件路径
             if model_path:
-                file_path = model_path
-            elif os.path.exists(default_json_path):
-                file_path = default_json_path
+                model_file_path = model_path
             else:
-                default_pkl_path = os.path.join(os.path.dirname(__file__), '../data/random_forest_model.pkl')
-                file_path = default_pkl_path
+                model_file_path = os.path.join(os.path.dirname(__file__), '../data/RandomForest_model.pkl')
+            
+            # 确定预处理管道路径
+            if pipeline_path:
+                pipeline_file_path = pipeline_path
+            else:
+                pipeline_file_path = os.path.join(os.path.dirname(__file__), '../data/preprocessing_pipeline.pkl')
             
             # 检查文件是否存在
-            if not os.path.exists(file_path):
-                raise FileNotFoundError(f"模型文件不存在: {file_path}")
+            if not os.path.exists(model_file_path):
+                raise FileNotFoundError(f"模型文件不存在: {model_file_path}")
             
-            # 根据文件扩展名选择加载方式
-            if file_path.endswith('.json'):
-                self._load_json_model(file_path)
-            else:
-                self._load_pickle_model(file_path)
+            if not os.path.exists(pipeline_file_path):
+                raise FileNotFoundError(f"预处理管道文件不存在: {pipeline_file_path}")
+            
+            # 加载模型
+            with open(model_file_path, 'rb') as f:
+                self.model = pickle.load(f)
+            
+            # 加载预处理管道
+            with open(pipeline_file_path, 'rb') as f:
+                self.pipeline = pickle.load(f)
+            
+            # 从管道中提取信息
+            self.feature_names = self.pipeline['feature_names']
+            self.scaler = self.pipeline['scaler']
+            self.categorical_info = self.pipeline.get('categorical_info', {})
             
             self.trained = True
-            print('随机森林模型加载成功!')
+            print('随机森林模型和预处理管道加载成功!')
             return True
+            
         except Exception as e:
             print(f'加载模型失败: {str(e)}')
             raise Exception(f"加载模型失败: {str(e)}")
 
-    def _load_pickle_model(self, file_path):
-        """加载pickle格式的模型"""
-        with open(file_path, 'rb') as f:
-            model_data = pickle.load(f)
-            self.model = model_data['model']
-            self.scaler = model_data.get('scaler')
-            self.feature_names = model_data.get('feature_names', self.feature_names)
-
-    def _load_json_model(self, file_path):
-        """加载JSON格式的简化模型"""
-        with open(file_path, 'r', encoding='utf-8') as f:
-            model_data = json.load(f)
-            
-            # 提取特征名称
-            if 'feature_names' in model_data:
-                self.feature_names = model_data['feature_names']
-            
-            # 提取缩放器信息
-            if 'scaler' in model_data:
-                from sklearn.preprocessing import StandardScaler
-                scaler = StandardScaler()
-                scaler.mean_ = np.array(model_data['scaler']['mean'])
-                scaler.scale_ = np.array(model_data['scaler']['scale'])
-                self.scaler = scaler
-            
-            # 提取树模型
-            if 'trees' in model_data:
-                self.custom_trees = model_data['trees']
-                self.n_estimators = model_data.get('n_estimators', len(self.custom_trees))
-                # 不创建sklearn的随机森林模型，使用自定义树结构
-                self.model = None
-            else:
-                raise ValueError("JSON模型中缺少树结构信息")
-
-    def predict(self, features):
+    def preprocess_new_data(self, new_data):
         """
-        使用预训练随机森林模型进行预测
-        :param features: 输入特征
+        预处理新数据
+        :param new_data: 输入数据（字典格式）
+        :return: 预处理后的数据
+        """
+        # 将字典转换为DataFrame
+        if isinstance(new_data, dict):
+            # 如果是单个样本的字典，转换为DataFrame
+            df = pd.DataFrame([new_data])
+        else:
+            df = new_data.copy()
+        
+        # 移除非特征列（如果存在）
+        drop_cols = ['id', 'reference', 'specimen']
+        for col in drop_cols:
+            if col in df.columns:
+                df = df.drop(columns=[col])
+        
+        # 独热编码分类变量
+        categorical_cols = list(self.categorical_info.keys())
+        if categorical_cols:
+            # 只对存在的分类列进行独热编码
+            existing_categorical_cols = [col for col in categorical_cols if col in df.columns]
+            if existing_categorical_cols:
+                df = pd.get_dummies(df, columns=existing_categorical_cols, drop_first=True)
+        
+        # 确保所有需要的特征都存在
+        missing_cols = set(self.feature_names) - set(df.columns)
+        if missing_cols:
+            # 对于缺失的特征，添加默认值0
+            for col in missing_cols:
+                df[col] = 0
+        
+        # 仅保留模型需要的特征，按正确顺序排列
+        df = df[self.feature_names]
+        
+        # 标准化
+        df_scaled = self.scaler.transform(df)
+        
+        return df_scaled
+
+    def predict(self, features, outlier_threshold=1.5):
+        """
+        使用预训练随机森林模型进行预测，并过滤误差较大的估计器
+        :param features: 输入特征（字典格式）
+        :param outlier_threshold: 过滤阈值（标准差的倍数），默认1.5
         :return: 预测结果
         """
         # 如果模型尚未加载，则加载模型
         if not self.trained:
             self.load_model()
 
-        # 准备特征数据
-        feature_vector = self._prepare_features(features)
-        
-        # 判断使用哪种方式进行预测
-        if self.model is not None:
-            # 使用sklearn模型进行预测
-            result = float(self.model.predict([feature_vector])[0])
+        # 预处理特征数据
+        try:
+            X_processed = self.preprocess_new_data(features)
             
             # 获取各棵树的预测
             individual_predictions = []
             for tree in self.model.estimators_:
-                prediction = float(tree.predict([feature_vector])[0])
-                individual_predictions.append(prediction)
-        else:
-            # 使用自定义树模型进行预测
-            individual_predictions = []
-            for tree in self.custom_trees:
-                prediction = self._predict_with_custom_tree(tree, feature_vector)
-                individual_predictions.append(prediction)
+                tree_prediction = float(tree.predict(X_processed)[0])
+                individual_predictions.append(tree_prediction)
             
-            # 计算平均值作为最终预测结果
-            result = sum(individual_predictions) / len(individual_predictions)
-        
-        return {
-            'shear_capacity': result,
-            'individual_predictions': individual_predictions,
-            'confidence': self.calculate_confidence(individual_predictions)
-        }
+            # 过滤误差较大的估计器
+            filtered_predictions = self._filter_outlier_estimators(
+                individual_predictions, outlier_threshold
+            )
+            
+            # 使用过滤后的预测计算最终结果
+            final_prediction = sum(filtered_predictions) / len(filtered_predictions)
+            
+            return {
+                'shear_capacity': float(final_prediction),
+                'individual_predictions': individual_predictions,
+                'filtered_predictions': filtered_predictions,
+                'used_estimators': len(filtered_predictions),
+                'total_estimators': len(individual_predictions),
+                'filtered_out': len(individual_predictions) - len(filtered_predictions),
+                'confidence': self.calculate_confidence(filtered_predictions)
+            }
+            
+        except Exception as e:
+            raise Exception(f"预测过程中出现错误: {str(e)}")
 
-    def _predict_with_custom_tree(self, tree, features):
+    def _filter_outlier_estimators(self, predictions, threshold=1.5):
         """
-        使用自定义决策树进行预测
-        :param tree: 树结构
-        :param features: 特征向量
-        :return: 预测结果
+        过滤误差较大的估计器
+        :param predictions: 所有估计器的预测结果
+        :param threshold: 过滤阈值（标准差的倍数）
+        :return: 过滤后的预测结果
         """
-        # 从根节点开始遍历
-        current_node = 0
-        nodes = tree['nodes']
+        if len(predictions) <= 2:
+            # 如果预测数量太少，不进行过滤
+            return predictions
         
-        while True:
-            node = nodes[current_node]
-            
-            # 如果是叶节点，返回值
-            if node['type'] == 'leaf':
-                return float(node['value'])
-            
-            # 如果是内部节点，根据特征值和阈值决定走左子树还是右子树
-            feature_idx = node['feature']
-            threshold = node['threshold']
-            
-            if features[feature_idx] <= threshold:
-                current_node = node['left_child']
-            else:
-                current_node = node['right_child']
-
-    def _prepare_features(self, features):
-        """
-        准备特征向量
-        :param features: 输入特征字典
-        :return: 特征向量
-        """
-        # 创建特征向量
-        feature_vector = []
-        for feature_name in self.feature_names:
-            feature_value = features.get(feature_name, 0)
-            feature_vector.append(feature_value)
+        # 计算平均值和标准差
+        mean_pred = sum(predictions) / len(predictions)
+        variance = sum((p - mean_pred) ** 2 for p in predictions) / len(predictions)
+        std_dev = np.sqrt(variance)
         
-        # 应用缩放器（如果存在）
-        if self.scaler:
-            feature_vector = self.scaler.transform([feature_vector])[0]
-            
-        return feature_vector
+        # 如果标准差太小，说明所有预测都很接近，不需要过滤
+        if std_dev < 1e-6:
+            return predictions
+        
+        # 过滤超出阈值的预测
+        filtered_predictions = []
+        for pred in predictions:
+            # 计算Z分数（标准化后的偏差）
+            z_score = abs(pred - mean_pred) / std_dev
+            if z_score <= threshold:
+                filtered_predictions.append(pred)
+        
+        # 确保至少保留一半的估计器
+        min_estimators = max(1, len(predictions) // 2)
+        if len(filtered_predictions) < min_estimators:
+            # 如果过滤后剩余太少，按距离平均值的远近重新选择
+            predictions_with_distance = [
+                (pred, abs(pred - mean_pred)) for pred in predictions
+            ]
+            # 按距离排序，选择距离最近的一半估计器
+            predictions_with_distance.sort(key=lambda x: x[1])
+            filtered_predictions = [
+                pred for pred, _ in predictions_with_distance[:min_estimators]
+            ]
+        
+        return filtered_predictions
 
     def calculate_confidence(self, predictions):
         """
@@ -211,18 +225,16 @@ class RandomForestModel:
                 'features': []
             }
         
-        # 确定树的数量
-        num_trees = 0
-        if self.model:
-            num_trees = len(self.model.estimators_)
-        elif self.custom_trees:
-            num_trees = len(self.custom_trees)
+        # 获取树的数量
+        num_trees = len(self.model.estimators_) if self.model else 0
         
         return {
             'name': self.name,
             'trained': True,
             'numTrees': num_trees,
-            'features': self.feature_names
+            'features': self.feature_names,
+            'totalFeatures': len(self.feature_names) if self.feature_names else 0,
+            'categoricalInfo': self.categorical_info
         }
 
     def train(self):
